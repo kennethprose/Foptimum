@@ -2,10 +2,19 @@ import json
 import subprocess
 import threading
 from time import sleep
+from configparser import ConfigParser
 from prometheus_client import Gauge, Counter, start_http_server
 
+config = ConfigParser()
+config.read('config.ini')
+
+server_port = int(config['DEFAULT']['Server_Port'])
+speedtest_interval = int(config['DEFAULT']['Speedtest_Interval'])
+ping_interval = int(config['DEFAULT']['Ping_Interval'])
+server_list = config['DEFAULT']['Server_List'].split(',')
+
 # Init prometheus server to post metrics
-start_http_server(9191)
+start_http_server(server_port)
 
 # Init prometheus gauges for each data point
 prom_latency = Gauge('speedtest_latency', 'Latency of the connection to the test server')
@@ -32,16 +41,16 @@ def speedtest():
         prom_download.set(json_results['download']['bandwidth'])
         prom_upload.set(json_results['upload']['bandwidth'])
 
-        sleep(60)
+        sleep(speedtest_interval)
 
 
-def ping_test(servers):
+def ping_test():
 
     global kill_threads
 
     while not kill_threads:
 
-        for server in servers:
+        for server in server_list:
 
             # Send a single ping to the current server and capture result by piping output
             ping_result = subprocess.Popen(['ping', '/n', '1', server], stdout=subprocess.PIPE).communicate()[0]
@@ -51,10 +60,10 @@ def ping_test(servers):
             else:
                 prom_ping_fails.inc()
 
-        sleep(10)
+        sleep(ping_interval)
 
 
-ping_thread = threading.Thread(target=ping_test, args=(['1.1.1.1','8.8.8.8'],))
+ping_thread = threading.Thread(target=ping_test)
 speedtest_thread = threading.Thread(target=speedtest)
 
 kill_threads = False
