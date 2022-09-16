@@ -1,5 +1,5 @@
 import json
-from operator import eq
+import os
 import subprocess
 import threading
 import logging
@@ -13,13 +13,13 @@ logging.basicConfig(filename='app.log',
 config = ConfigParser()
 config.read('config.ini')
 
-server_port = int(config['DEFAULT']['Server_Port'])
-speedtest_interval = int(config['DEFAULT']['Speedtest_Interval'])
-ping_interval = int(config['DEFAULT']['Ping_Interval'])
-server_list = config['DEFAULT']['Server_List'].split(',')
+# Read environment variables to get settings
+speedtest_interval = int(os.environ['SPEEDTEST_INTERVAL'])
+ping_interval = int(os.environ['PING_INTERVAL'])
+server_list = os.environ['SERVER_LIST'].split(',')
 
 # Init prometheus server to post metrics
-start_http_server(server_port)
+start_http_server(9191)
 
 # Init prometheus gauges for each data point
 prom_latency = Gauge('speedtest_latency',
@@ -42,7 +42,7 @@ def speedtest():
         # Specify json output
         # Pipe output of subprocess to variable
         speedtest_results = subprocess.Popen(
-            ['speedtest.exe', '-f', 'json'], stdout=subprocess.PIPE).communicate()[0]
+            ['./speedtest', "--accept-license", "--accept-gdpr", '-f', 'json'], stdout=subprocess.PIPE).communicate()[0]
 
         if str(speedtest_results) != "b''":
 
@@ -74,9 +74,9 @@ def ping_test():
 
             # Send a single ping to the current server and capture result by piping output
             ping_result = subprocess.Popen(
-                ['ping', '/n', '1', server], stdout=subprocess.PIPE).communicate()[0]
+                ['ping', '-c', '1', server], stdout=subprocess.PIPE).communicate()[0]
 
-            if 'Destination host unreachable.' not in str(ping_result) and 'Request timed out.' not in str(ping_result):
+            if ' 0% packet loss' in str(ping_result):
                 prom_ping_success.inc()
             else:
                 prom_ping_fails.inc()
@@ -92,13 +92,6 @@ kill_threads = False
 
 ping_thread.start()
 speedtest_thread.start()
-
-# Used to detect CTRL-C and terminate the threads
-# try:
-#    while True:
-#        pass
-# except KeyboardInterrupt:
-#    kill_threads = True
 
 ping_thread.join()
 speedtest_thread.join()
