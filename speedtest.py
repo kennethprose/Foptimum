@@ -28,6 +28,8 @@ prom_download = Gauge('speedtest_download',
                       'Download speed in bytes of the internet connection')
 prom_upload = Gauge('speedtest_upload',
                     'Upload speed in bytes of the internet connection')
+prom_ping_currently_failing = Gauge(
+    'ping_currently_failing', 'A true/false value. True when pings are currently in a failing state')
 prom_ping_success = Counter('ping_success', 'Number of successful pings')
 prom_ping_fails = Counter('ping_fails', 'Number of failed pings')
 
@@ -66,6 +68,8 @@ def speedtest():
 
 def ping_test():
 
+    prom_ping_currently_failing.set(0)
+
     global kill_threads
 
     while not kill_threads:
@@ -78,8 +82,10 @@ def ping_test():
 
             if ' 0% packet loss' in str(ping_result):
                 prom_ping_success.inc()
+                prom_ping_currently_failing.set(0)
             else:
                 prom_ping_fails.inc()
+                prom_ping_currently_failing.set(1)
                 logging.warning(server + ' ping failed')
 
         sleep(ping_interval)

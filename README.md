@@ -21,11 +21,11 @@ docker pull roseatoni/foptimum
 
 All variables are passed to the program as environment variables. These variables are:
 
-| Variable Name      | Description                                 | Recommended Value |
-| ------------------ | ------------------------------------------- | ----------------- |
-| SPEEDTEST_INTERVAL | How often (in seconds) to run the speedtest | 900 (15 min)      |
-| PING_INTERVAL      | How often (in seconds) to ping all servers  | 15                |
-| SERVER_LIST        | A comma delimited list of IPs to ping       | 1.1.1.1,8.8.8.8   |
+| Variable Name      | Description                                 | Example Value   |
+| ------------------ | ------------------------------------------- | --------------- |
+| SPEEDTEST_INTERVAL | How often (in seconds) to run the speedtest | 900 (15 min)    |
+| PING_INTERVAL      | How often (in seconds) to ping all servers  | 15              |
+| SERVER_LIST        | A comma delimited list of IPs to ping       | 1.1.1.1,8.8.8.8 |
 
 The Prometheus server is exposed in the container on port 9191. When deploying this container, map port 9191 to your desired host port.
 
