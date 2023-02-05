@@ -1,10 +1,10 @@
-FROM python:3.10-bullseye
+FROM python:3.10-alpine
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-RUN apt update
-RUN apt install inetutils-ping
+RUN apk update
+RUN apk add iputils
 
 ADD speedtest.py .
 ADD speedtest .
