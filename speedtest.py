@@ -4,14 +4,10 @@ import subprocess
 import threading
 import logging
 from time import sleep
-from configparser import ConfigParser
 from prometheus_client import Gauge, Counter, start_http_server
 
 logging.basicConfig(filename='app.log',
                     format='%(asctime)s:%(levelname)s:%(message)s')
-
-config = ConfigParser()
-config.read('config.ini')
 
 # Read environment variables to get settings
 speedtest_interval = int(os.environ['SPEEDTEST_INTERVAL'])
