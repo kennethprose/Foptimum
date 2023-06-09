@@ -32,9 +32,7 @@ prom_ping_fails = Counter('ping_fails', 'Number of failed pings')
 
 def speedtest():
 
-    global kill_threads
-
-    while not kill_threads:
+    while True:
 
         # Run speedtest
         # Specify json output
@@ -66,9 +64,7 @@ def ping_test():
 
     prom_ping_currently_failing.set(0)
 
-    global kill_threads
-
-    while not kill_threads:
+    while True:
 
         for server in server_list:
 
@@ -89,8 +85,6 @@ def ping_test():
 
 ping_thread = threading.Thread(target=ping_test)
 speedtest_thread = threading.Thread(target=speedtest)
-
-kill_threads = False
 
 ping_thread.start()
 speedtest_thread.start()
