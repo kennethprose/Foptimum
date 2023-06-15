@@ -27,6 +27,8 @@ All variables are passed to the program as environment variables. These variable
 | PING_INTERVAL      | How often (in seconds) to ping all servers  | 15                |
 | SERVER_LIST        | A comma delimited list of IPs to ping       | 1.1.1.1,8.8.8.8   |
 
+**The speedtest and/or the pings can be turned off by setting their respective intervals to 0.**
+
 \*\* I reccomend setting the Speedtest interval to 30 minutes at minimum. In testing, I ran into issues with the speedtest failing when set to an interval lower than 30 minutes. This was probably due to some sort of rate limiting with the service.
 
 The Prometheus server is exposed in the container on port 9191. When deploying this container, map port 9191 to your desired host port.
