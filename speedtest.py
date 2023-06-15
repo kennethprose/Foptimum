@@ -86,8 +86,10 @@ def ping_test():
 ping_thread = threading.Thread(target=ping_test)
 speedtest_thread = threading.Thread(target=speedtest)
 
-ping_thread.start()
-speedtest_thread.start()
+if ping_interval > 0:
+    ping_thread.start()
+if speedtest_interval > 0:
+    speedtest_thread.start()
 
 ping_thread.join()
 speedtest_thread.join()
